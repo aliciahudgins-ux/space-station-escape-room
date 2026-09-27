@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GET OUT! Space Station Escape Room</title>
+<style>
+:root{
+  --bg:#050b16;--panel:#0d1b31;--panel2:#132442;--line:#315174;
+  --text:#f6fbff;--muted:#b6c9df;--cyan:#5ee7f7;--pink:#ff6db2;
+  --green:#6ee7a2;--orange:#ffb35c;--yellow:#ffe46b;--red:#ff7070;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:radial-gradient(circle at 20% 0%,#142a4b 0,#07101f 40%,#030711 100%);min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#fff 0.8px,transparent 0.8px);background-size:27px 27px;opacity:.22}
+.app{max-width:1100px;margin:auto;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.brand{font-size:clamp(22px,4vw,34px);font-weight:900;letter-spacing:.7px}.brand span{color:var(--cyan)}
+.controls{display:flex;gap:8px}.btn,.choice{border:1px solid #45688f;background:#132442;color:white;border-radius:12px;cursor:pointer;transition:.15s}.btn:hover,.choice:hover{transform:translateY(-1px);filter:brightness(1.12)}
+.btn{padding:10px 14px;font-weight:800}.btn.primary{background:linear-gradient(180deg,#17627b,#10475d);border-color:#5ee7f7}.btn.hidden{display:none}
+.progress{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:10px 0 14px}.prog{padding:8px 2px;border:1px solid #2a4768;background:#091426;border-radius:9px;text-align:center;font-size:11px;color:#89a3c1}.prog.active{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px #5ee7f744}.prog.done{background:#123826;color:#b2ffd5;border-color:#2d8a5c}
+.screen{display:none}.screen.active{display:block}
+.card{background:linear-gradient(180deg,#0f1f38,#091528);border:1px solid #315174;border-radius:22px;box-shadow:0 18px 60px #0007;padding:clamp(18px,3vw,32px);min-height:600px;position:relative;overflow:hidden}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center}
+h1{font-size:clamp(38px,6vw,68px);line-height:.96;margin:0 0 14px}h2{font-size:clamp(28px,4vw,42px);margin:0 0 8px}h3{margin:0 0 10px}.lead{font-size:clamp(18px,2.3vw,23px);line-height:1.45;color:#deedff}.tip{color:#a8bfd9;line-height:1.4}
+.alert{display:inline-block;background:#3a141b;border:1px solid #8e3545;color:#ffc5c5;border-radius:999px;padding:7px 12px;font-weight:900;letter-spacing:.6px;margin-bottom:12px}
+.planet{width:320px;height:320px;border-radius:50%;margin:auto;position:relative;background:radial-gradient(circle at 35% 30%,#b6f7ff 0 7%,#397eb2 8% 23%,#173762 24% 52%,#0b1933 53% 100%);box-shadow:0 0 70px #5ee7f755}.ring{position:absolute;width:400px;height:86px;border:17px solid #95c6df;border-left-color:#547f9b;border-right-color:#d9f2ff;border-radius:50%;left:-40px;top:118px;transform:rotate(-13deg);opacity:.85}.station{position:absolute;left:88px;top:110px;width:145px;height:95px;background:#d6e1ec;border-radius:16px;box-shadow:0 0 26px #fff5}.station:before,.station:after{content:"";position:absolute;top:32px;width:100px;height:26px;background:#55789c;border:5px solid #aac2d6}.station:before{left:-95px}.station:after{right:-95px}.core{position:absolute;inset:22px 36px;background:#1b385a;border-radius:12px;box-shadow:inset 0 0 0 4px #8fabc4}
+.missionHeader{display:flex;gap:14px;align-items:center;margin-bottom:14px}.icon{font-size:42px;background:#122845;border:1px solid #395d83;padding:10px;border-radius:16px}
+.problem{font-size:clamp(21px,3vw,30px);line-height:1.45;background:#071322;border:1px solid #34577d;border-radius:16px;padding:18px;margin:14px 0 18px}
+.getArea{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:#0a1627;border:1px solid #294867;border-radius:16px;padding:16px}
+.getRow{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;margin:9px 0}.letter{font-size:30px;font-weight:900;text-align:center;padding:8px;border-radius:10px;color:#07101f}.g{background:var(--pink)}.e{background:var(--green)}.t{background:var(--orange)}
+.slot{min-height:54px;border:2px dashed #4a6b90;border-radius:10px;padding:10px;display:flex;align-items:center;background:#07111f;color:#8ca6c3}.slot.filled{border-style:solid;color:#fff;background:#102540}.slot.good{border-color:#54df98}.slot.bad{border-color:var(--red);animation:shake .28s}
+.choices{display:flex;flex-wrap:wrap;gap:9px}.choice{padding:11px 13px;font-weight:700}.choice.selected{outline:2px solid var(--cyan);background:#17405a}.choice.used{opacity:.4;pointer-events:none}
+.productBox{margin-top:16px;padding:14px;background:#0a1729;border:1px solid #34577d;border-radius:14px;text-align:center}.productBox input{width:110px;padding:11px;font-size:24px;font-weight:900;text-align:center;background:#06101f;color:#fff;border:2px solid var(--cyan);border-radius:10px}.feedback{min-height:30px;margin-top:10px;font-weight:900}.success{color:#90f5bd}.error{color:#ff9999}
+.codeReveal{margin-top:15px;padding:18px;text-align:center;border:2px solid var(--yellow);background:#2b260b;border-radius:16px;box-shadow:0 0 20px #ffe46b33}.codeReveal .bigCode{font-size:48px;font-weight:900;color:var(--yellow);letter-spacing:3px}.codeReveal.hidden{display:none}
+.finalGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}.codeCell{background:#081322;border:1px solid #36597c;border-radius:12px;padding:10px;text-align:center}.codeCell input{width:86px;padding:10px;font-size:22px;text-align:center;background:#030a13;color:#fff;border:2px solid #5ee7f7;border-radius:9px}
+.finalCode{margin:18px auto;max-width:600px}.finalCode input{width:100%;font-size:32px;text-align:center;letter-spacing:9px;padding:14px;background:#020813;color:#78f7a8;border:2px solid #3a5c80;border-radius:12px;font-family:monospace}
+.finale{text-align:center;padding:55px 20px}.big{font-size:76px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* Mission-specific visual themes */
+#missionCard{transition:background .35s ease, box-shadow .35s ease}
+#missionCard:before,#missionCard:after{content:"";position:absolute;pointer-events:none;z-index:0}
+#missionCard>*{position:relative;z-index:1}
+#missionCard.mission-0{background:radial-gradient(circle at 82% 16%,#54d7ff33 0 8%,transparent 9%),linear-gradient(145deg,#06243a,#0b3555 48%,#071522)}
+#missionCard.mission-0:after{inset:0;background:repeating-radial-gradient(circle at 88% 25%,#74e4ff33 0 2px,transparent 3px 26px);opacity:.55}
+#missionCard.mission-1{background:linear-gradient(145deg,#10131f,#242843 52%,#0a1322)}
+#missionCard.mission-1:after{inset:0;background-image:linear-gradient(#8aa4c218 1px,transparent 1px),linear-gradient(90deg,#8aa4c218 1px,transparent 1px);background-size:34px 34px}
+#missionCard.mission-2{background:linear-gradient(145deg,#2a1d0f,#5b3c18 52%,#17120d)}
+#missionCard.mission-2:after{right:-60px;bottom:-55px;width:310px;height:220px;border:16px solid #ffb35c33;border-radius:32px;transform:rotate(-8deg);box-shadow:-80px -40px 0 -52px #ffe46b33,-160px -80px 0 -52px #ffe46b33}
+#missionCard.mission-3{background:radial-gradient(circle at 78% 20%,#96ff8d2b 0 7%,transparent 8%),linear-gradient(145deg,#102718,#1a4b36 50%,#0e1c2f)}
+#missionCard.mission-3:after{inset:auto 0 0 0;height:120px;background:linear-gradient(0deg,#6ee7a21f,transparent);clip-path:polygon(0 100%,10% 55%,18% 100%,29% 42%,38% 100%,50% 50%,61% 100%,75% 37%,86% 100%,100% 48%,100% 100%)}
+#missionCard.mission-4{background:linear-gradient(145deg,#222831,#46505d 50%,#141a21)}
+#missionCard.mission-4:after{inset:0;background:repeating-linear-gradient(135deg,transparent 0 22px,#ffffff0d 23px 25px)}
+#missionCard.mission-5{background:radial-gradient(ellipse at 80% 20%,#b394ff2a 0 14%,transparent 15%),linear-gradient(145deg,#1d1735,#352968 50%,#0b1326)}
+#missionCard.mission-5:after{right:45px;top:110px;width:180px;height:78px;border:3px solid #bfa8ff3d;border-radius:45px;box-shadow:0 0 35px #aa8cff2b inset}
+#missionCard.mission-6{background:radial-gradient(circle at 82% 18%,#8aff972d 0 9%,transparent 10%),linear-gradient(145deg,#0d2814,#1d5a2b 50%,#081627)}
+#missionCard.mission-6:after{right:70px;top:90px;width:150px;height:150px;border-radius:50%;border:4px solid #7dff9230;box-shadow:0 0 0 20px #7dff9209,0 0 0 42px #7dff9207}
+#missionCard.mission-7{background:radial-gradient(circle at 86% 18%,#ff9a3d38 0 8%,transparent 9%),linear-gradient(145deg,#32110b,#6a2514 52%,#151019)}
+#missionCard.mission-7:after{right:40px;bottom:-10px;width:200px;height:250px;background:linear-gradient(#e7eef7 0 58%,#ff7b39 59% 74%,transparent 75%);clip-path:polygon(42% 0,58% 0,68% 16%,68% 58%,82% 74%,65% 72%,58% 100%,42% 100%,35% 72%,18% 74%,32% 58%,32% 16%);opacity:.18}
+#missionCard.mission-8{background:linear-gradient(145deg,#081c31,#123f5b 52%,#091522)}
+#missionCard.mission-8:after{inset:0;background-image:radial-gradient(circle,#64d9ff24 1px,transparent 1px),radial-gradient(circle,#64d9ff18 1px,transparent 1px);background-position:0 0,12px 12px;background-size:24px 24px}
+#missionCard.mission-9{background:radial-gradient(circle at 82% 24%,transparent 0 45px,#5ee7f720 46px 48px,transparent 49px 72px,#5ee7f714 73px 75px,transparent 76px),linear-gradient(145deg,#071c2a,#0b4d5e 52%,#081321)}
+#missionCard.mission-9:after{right:92px;top:118px;width:5px;height:135px;background:#5ee7f73b;transform:rotate(32deg);transform-origin:bottom;box-shadow:0 0 12px #5ee7f766}
+
+/* Finale launch animation */
+#win .card{background:radial-gradient(circle at 50% 85%,#143c68,#08142a 42%,#020713 100%);min-height:640px}
+.spaceFinale{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;width:3px;height:3px;border-radius:50%;background:white;box-shadow:0 0 7px #fff;animation:starRush 2.2s linear infinite}
+.rocketWrap{position:relative;width:220px;height:310px;margin:12px auto 2px;animation:rocketIdle 1.5s ease-in-out infinite alternate}
+.rocketBody{position:absolute;left:70px;top:18px;width:80px;height:190px;background:linear-gradient(90deg,#d7e6f3,#fff 48%,#afc6d9);border-radius:50% 50% 26% 26%/35% 35% 12% 12%;box-shadow:0 0 25px #b9efff88}
+.rocketNose{position:absolute;left:82px;top:-6px;width:56px;height:62px;background:linear-gradient(90deg,#f04f52,#ff8a75);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.window{position:absolute;left:22px;top:62px;width:36px;height:36px;border-radius:50%;background:#3fd8ff;border:6px solid #6d7d8e;box-shadow:inset 0 0 12px #0b4570}
+.finL,.finR{position:absolute;bottom:8px;width:34px;height:62px;background:#ef5757}.finL{left:-24px;clip-path:polygon(100% 0,100% 100%,0 100%)}.finR{right:-24px;clip-path:polygon(0 0,100% 100%,0 100%)}
+.flame{position:absolute;left:88px;top:198px;width:44px;height:95px;background:linear-gradient(#fff29b,#ffb32e 35%,#ff5a2f 68%,transparent 70%);clip-path:polygon(50% 100%,0 0,100% 0);filter:drop-shadow(0 0 14px #ff9a2e);animation:flamePulse .16s ease-in-out infinite alternate}
+.smoke{position:absolute;left:38px;top:268px;width:145px;height:50px;background:radial-gradient(circle at 25% 50%,#dbe7ef 0 18%,transparent 19%),radial-gradient(circle at 50% 45%,#e8f0f5 0 25%,transparent 26%),radial-gradient(circle at 75% 50%,#c9d8e3 0 19%,transparent 20%);opacity:.65}
+#win.launching .rocketWrap{animation:launchAway 2.4s cubic-bezier(.58,.02,.88,.58) forwards}
+#win.launching .smoke{animation:smokeExpand 1.7s ease-out forwards}
+#win.launching .finaleText{animation:finalText 2.6s ease-out forwards}
+@keyframes starRush{from{transform:translateY(-60px);opacity:.25}to{transform:translateY(720px);opacity:1}}
+@keyframes rocketIdle{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+@keyframes flamePulse{from{transform:scaleY(.85)}to{transform:scaleY(1.18)}}
+@keyframes launchAway{0%{transform:translateY(0) scale(1)}20%{transform:translateY(18px) scale(1.03)}100%{transform:translateY(-760px) scale(.52)}}
+@keyframes smokeExpand{0%{transform:scale(1);opacity:.7}100%{transform:scale(4.2);opacity:0}}
+@keyframes finalText{0%,45%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+
+@media(max-width:800px){.hero,.getArea{grid-template-columns:1fr}.progress{grid-template-columns:repeat(5,1fr)}.planet{width:245px;height:245px}.ring{width:305px;left:-30px;top:90px}.station{transform:scale(.78);left:50px;top:75px}.finalGrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">🚀 GET <span>OUT!</span> Space Station</div>
+    <div class="controls"><button class="btn" id="soundBtn">🔊 Sound On</button><button class="btn" id="resetBtn">↻ Reset</button></div>
+  </div>
+  <div class="progress" id="progress"></div>
+
+  <section class="screen active" id="start">
+    <div class="card hero">
+      <div>
+        <div class="alert">⚠ STATION LOCKDOWN</div>
+        <h1>Escape<br>Station Nova</h1>
+        <p class="lead">Ten station doors are locked. Solve each multiplication word problem using <strong>GET</strong>: Groups, Each, Total.</p>
+        <p class="lead">After each correct problem, the computer will reveal a <strong>secret code number</strong>. Write every code down. You will need all 10 codes to unlock the escape pod.</p>
+        <p class="tip">Read carefully. The choices are mixed up, so do not depend on the order.</p>
+        <button class="btn primary" onclick="showMission(0)">BEGIN MISSION →</button>
+      </div>
+      <div class="planet"><div class="ring"></div><div class="station"><div class="core"></div></div></div>
+    </div>
+  </section>
+
+  <section class="screen" id="missionScreen"><div class="card" id="missionCard"></div></section>
+
+  <section class="screen" id="finalScreen">
+    <div class="card">
+      <div class="missionHeader"><div class="icon">🔐</div><div><h2>Final Escape Pod Lock</h2><div class="tip">Enter the 10 code numbers you wrote down, in order.</div></div></div>
+      <div class="finalGrid" id="finalGrid"></div>
+      <div class="finalCode"><input id="finalCode" maxlength="30" inputmode="numeric" placeholder="Enter all 10 three-digit codes"></div>
+      <div style="text-align:center"><button class="btn primary" id="unlockBtn">UNLOCK ESCAPE POD</button></div>
+      <div class="feedback" id="finalFeedback"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="win"><div class="card finale"><div class="spaceFinale" id="spaceFinale"></div><div class="rocketWrap"><div class="rocketNose"></div><div class="rocketBody"><div class="window"></div><div class="finL"></div><div class="finR"></div></div><div class="flame"></div><div class="smoke"></div></div><div class="finaleText"><div class="big">✨🌎✨</div><h1>YOU ESCAPED!</h1><p class="lead" style="margin:auto;max-width:720px">Station Nova is behind you. You solved all 10 multiplication missions, collected every code, and launched the escape pod!</p><button class="btn primary" onclick="location.reload()">PLAY AGAIN</button></div></div></section>
+</div>
+<script>
+const missions = [
+  {area:'Oxygen Bay',icon:'🌬️',problem:'There are 4 oxygen tanks. Each tank holds 6 masks. How many masks are there?',G:'4 tanks',E:'6 masks',T:'? masks',product:24,code: '314'},
+  {area:'Robot Lab',icon:'🤖',problem:'Each robot has 3 batteries. There are 7 robots. How many batteries are needed?',G:'7 robots',E:'3 batteries',T:'? batteries',product:21,code: '582'},
+  {area:'Food Storage',icon:'🥫',problem:'There are 5 shelves. Each shelf holds 8 food packs. How many food packs are on the shelves?',G:'5 shelves',E:'8 food packs',T:'? food packs',product:40,code: '761'},
+  {area:'Moon Garden',icon:'🌱',problem:'Each plant tray has 4 plants. There are 6 trays. How many plants are in the garden?',G:'6 trays',E:'4 plants',T:'? plants',product:24,code: '429'},
+  {area:'Tool Room',icon:'🧰',problem:'There are 3 tool boxes. Each box has 9 tools. How many tools are in the boxes?',G:'3 boxes',E:'9 tools',T:'? tools',product:27,code: '853'},
+  {area:'Sleeping Pods',icon:'🛏️',problem:'Each sleeping room has 5 beds. There are 4 rooms. How many beds are there?',G:'4 rooms',E:'5 beds',T:'? beds',product:20,code: '196'},
+  {area:'Alien Pet Room',icon:'👽',problem:'There are 8 cages. Each cage has 2 alien pets. How many alien pets are there?',G:'8 cages',E:'2 alien pets',T:'? alien pets',product:16,code: '647'},
+  {area:'Launch Deck',icon:'🚀',problem:'Each rocket cart carries 6 boxes. There are 5 carts. How many boxes are being carried?',G:'5 carts',E:'6 boxes',T:'? boxes',product:30,code: '275'},
+  {area:'Science Lab',icon:'🔬',problem:'There are 7 tables. Each table has 4 microscopes. How many microscopes are in the lab?',G:'7 tables',E:'4 microscopes',T:'? microscopes',product:28,code: '938'},
+  {area:'Communication Room',icon:'📡',problem:'Each wall has 3 screens. There are 6 walls with screens. How many screens are there?',G:'6 walls',E:'3 screens',T:'? screens',product:18,code: '504'}
+];
+let current=0,selected=null,soundOn=true,audioCtx=null;
+const progress=document.getElementById('progress');
+missions.forEach((m,i)=>{const d=document.createElement('div');d.className='prog';d.textContent=i+1;progress.appendChild(d)});
+function ctx(){if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); return audioCtx}
+function note(freq,start=0,dur=.12,type='sine',gain=.10){if(!soundOn)return;const a=ctx(),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(freq,a.currentTime+start);o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,a.currentTime+start);g.gain.exponentialRampToValueAtTime(gain,a.currentTime+start+.015);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+start+dur);o.start(a.currentTime+start);o.stop(a.currentTime+start+dur+.03)}
+function noise(start=0,dur=.25,gain=.05){if(!soundOn)return;const a=ctx(),buf=a.createBuffer(1,a.sampleRate*dur,a.sampleRate),data=buf.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);const src=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();src.buffer=buf;f.type='bandpass';f.frequency.value=900;f.Q.value=.7;src.connect(f);f.connect(g);g.connect(a.destination);g.gain.setValueAtTime(gain,a.currentTime+start);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+start+dur);src.start(a.currentTime+start)}
+function uiClick(){note(420,0,.05,'square',.035);note(620,.04,.06,'square',.025)}
+function goodSound(){note(523,0,.12,'triangle',.08);note(659,.10,.12,'triangle',.08);note(784,.20,.18,'triangle',.09)}
+function badSound(){note(220,0,.18,'sawtooth',.06);note(165,.12,.22,'sawtooth',.05)}
+function doorSound(){noise(0,.45,.06);note(330,.08,.22,'square',.04);note(495,.23,.24,'triangle',.07);note(740,.42,.30,'sine',.08)}
+function missionStartSound(){note(280,0,.08,'square',.035);note(420,.07,.08,'square',.035);note(620,.14,.13,'triangle',.05)}
+function launchSound(){noise(0,1.8,.11);for(let i=0;i<12;i++)note(90+i*18,i*.11,.32,'sawtooth',.025+i*.002);note(523,1.45,.22,'triangle',.07);note(659,1.62,.22,'triangle',.07);note(784,1.78,.4,'triangle',.09)}
+document.getElementById('soundBtn').onclick=()=>{soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound On':'🔇 Sound Off'};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset the escape room?'))location.reload()};
+function setScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){[...progress.children].forEach((p,i)=>{p.classList.toggle('done',i<current);p.classList.toggle('active',i===current && current<missions.length)})}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function showMission(i){current=i;updateProgress();setScreen('missionScreen');renderMission();missionStartSound()}
+function renderMission(){const m=missions[current],card=document.getElementById('missionCard');selected=null;card.className='card mission-'+current;
+  const choiceVals=shuffle([m.G,m.E,m.T]);
+  card.innerHTML=`
+    <div class="missionHeader"><div class="icon">${m.icon}</div><div><h2>Mission ${current+1}: ${m.area}</h2><div class="tip">Match the information to G, E, and T. Then type the product.</div></div></div>
+    <div class="problem">${m.problem}</div>
+    <div class="getArea">
+      <div class="panel">
+        <h3>GET Chart</h3>
+        <div class="getRow"><div class="letter g">G</div><div class="slot" data-slot="G">Put GROUPS here</div></div>
+        <div class="getRow"><div class="letter e">E</div><div class="slot" data-slot="E">Put EACH here</div></div>
+        <div class="getRow"><div class="letter t">T</div><div class="slot" data-slot="T">Put TOTAL here</div></div>
+      </div>
+      <div class="panel">
+        <h3>Information Cards</h3>
+        <div class="choices" id="choices">${choiceVals.map(v=>`<button class="choice" data-val="${v}">${v}</button>`).join('')}</div>
+        <div class="feedback" id="getFeedback"></div>
+      </div>
+    </div>
+    <div class="productBox" id="productBox" style="display:none">
+      <strong>What is the product?</strong><br><br>
+      <input id="productInput" inputmode="numeric" aria-label="product"> <button class="btn primary" id="checkProduct">CHECK PRODUCT</button>
+      <div class="feedback" id="productFeedback"></div>
+    </div>
+    <div class="codeReveal hidden" id="codeReveal"><div>✅ Door unlocked!</div><div>Your code is</div><div class="bigCode">${m.code}</div><div class="tip">WRITE THIS CODE DOWN.</div></div>
+    <div style="text-align:right;margin-top:14px"><button class="btn primary hidden" id="nextBtn">${current===missions.length-1?'GO TO FINAL LOCK →':'NEXT MISSION →'}</button></div>`;
+  wireMission();
+}
+function wireMission(){const m=missions[current];
+  document.querySelectorAll('.choice').forEach(c=>c.onclick=()=>{uiClick();document.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');selected=c});
+  document.querySelectorAll('.slot').forEach(slot=>slot.onclick=()=>{if(!selected)return;uiClick();slot.textContent=selected.dataset.val;slot.dataset.val=selected.dataset.val;slot.classList.add('filled');selected.classList.add('used');selected.classList.remove('selected');selected=null;checkGET()});
+  function checkGET(){const slots=[...document.querySelectorAll('.slot')];if(slots.some(s=>!s.dataset.val))return;let ok=true;slots.forEach(s=>{const yes=s.dataset.val===m[s.dataset.slot];s.classList.toggle('good',yes);s.classList.toggle('bad',!yes);if(!yes)ok=false});if(ok){document.getElementById('getFeedback').innerHTML='<span class="success">GET is correct!</span>';document.getElementById('productBox').style.display='block';goodSound()}else{document.getElementById('getFeedback').innerHTML='<span class="error">Look at what each number is talking about. Try again.</span>';badSound();setTimeout(()=>{slots.forEach(s=>{s.className='slot';s.textContent=s.dataset.slot==='G'?'Put GROUPS here':s.dataset.slot==='E'?'Put EACH here':'Put TOTAL here';delete s.dataset.val});document.querySelectorAll('.choice').forEach(c=>c.classList.remove('used','selected'));document.getElementById('getFeedback').textContent=''},900)}}
+  document.getElementById('checkProduct').onclick=()=>{const v=document.getElementById('productInput').value.trim();if(v===String(m.product)){document.getElementById('productFeedback').innerHTML=`<span class="success">Correct! The product is ${m.product}.</span>`;document.getElementById('codeReveal').classList.remove('hidden');document.getElementById('nextBtn').classList.remove('hidden');doorSound()}else{document.getElementById('productFeedback').innerHTML='<span class="error">Check your multiplication and try again.</span>';badSound()}};
+  document.getElementById('nextBtn').onclick=()=>{if(current===missions.length-1){current=missions.length;updateProgress();buildFinal();setScreen('finalScreen')}else showMission(current+1)};
+}
+function buildFinal(){const grid=document.getElementById('finalGrid');grid.innerHTML='';missions.forEach((m,i)=>{const d=document.createElement('div');d.className='codeCell';d.innerHTML=`<strong>Code ${i+1}</strong><br><input maxlength="3" inputmode="numeric" data-i="${i}">`;grid.appendChild(d)});}
+document.getElementById('unlockBtn').onclick=()=>{const vals=[...document.querySelectorAll('.codeCell input')].map(x=>x.value.trim());const expected=missions.map(m=>m.code);const long=document.getElementById('finalCode').value.trim();const individualOK=vals.every((v,i)=>v===expected[i]);const longOK=long===expected.join('');if(individualOK||longOK){document.getElementById('finalFeedback').innerHTML='<span class="success">ALL CODES ACCEPTED. ESCAPE POD UNLOCKED!</span>';doorSound();setTimeout(()=>{setScreen('win');startFinale()},700)}else{document.getElementById('finalFeedback').innerHTML='<span class="error">One or more codes are out of order. Check the codes you wrote down.</span>';badSound()}};
+
+function startFinale(){
+  const win=document.getElementById('win');
+  const field=document.getElementById('spaceFinale');
+  field.innerHTML='';
+  for(let i=0;i<65;i++){
+    const st=document.createElement('span'); st.className='star';
+    st.style.left=(Math.random()*100)+'%'; st.style.top=(-Math.random()*680)+'px';
+    st.style.animationDelay=(Math.random()*1.8)+'s'; st.style.animationDuration=(1.2+Math.random()*1.8)+'s';
+    const sz=1+Math.random()*3; st.style.width=sz+'px';st.style.height=sz+'px'; field.appendChild(st);
+  }
+  launchSound();
+  setTimeout(()=>win.classList.add('launching'),350);
+}
+</script>
+</body>
+</html>
